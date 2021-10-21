@@ -26,7 +26,7 @@ import {
     InputMsg,
     ButtonMsg
 } from '../src/styles/style'
-
+import api from './config/api';
 
 let socket;
 
@@ -35,7 +35,9 @@ function App() {
     const ENDPOINT = 'http://localhost:8080/';
 
     const [logado, setLogado] = useState(false);
+    const [usuarioId, setUsuarioId] = useState("");
     const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [sala, setSala] = useState("");
 
     // const [logado, setLogado] = useState(true);
@@ -45,12 +47,30 @@ function App() {
     const [mensagem, setMensagem] = useState("");
     const [listaMensagem, setListaMensagem] = useState([]);
 
-    const conecatarSala = () => {
-        setLogado(true);
-        socket.emit("sala_conectada", sala);
+    const conecatarSala = async e => {
+        e.preventDefault();
+        const headers = {
+            'Content-Type': 'application/json'
+        }
+        await api.post("/validar-acesso", { email }, { headers })
+            .then((response) => {
+                //console.log(response.data.mensagem);
+                setUsuarioId(response.data.usuario.id);
+                setName(response.data.usuario.name);
+                socket.emit("sala_conectada", sala);
+                setLogado(true);
+            })
+            .catch((err) => {
+                if (err.response) {
+                    console.log(err.response.data.mensagem);
+                } else {
+                    console.log("Api fora do ar!");
+                }
+            })
     }
 
     const sendMassage = async () => {
+
         const conteudo = {
             sala: sala,
             conteudo: {
@@ -58,6 +78,7 @@ function App() {
                 mensagem: mensagem
             }
         }
+
         await socket.emit("enviar_mensagem", conteudo);
         setListaMensagem([...listaMensagem, conteudo.conteudo]);
         setMensagem("");
@@ -78,11 +99,11 @@ function App() {
             {!logado ?
                 <Conteudo>
                     <Header>Only chat</Header>
-                    <Form>
+                    <Form onSubmit={conecatarSala}>
                         <Campo>
                             <Label>Nome: </Label>
-                            <Input type="text" placeholder="Nome" name="nome" value={name} onChange={(text) => {
-                                setName(text.target.value)
+                            <Input type="text" placeholder="E-mail" name="email" value={email} onChange={(text) => {
+                                setEmail(text.target.value)
                             }
                             } />
                         </Campo>
@@ -96,7 +117,7 @@ function App() {
                                 <option value="4">PHP</option>
                             </Select>
                         </Campo>
-                        <Button onClick={conecatarSala}>Acessar</Button>
+                        <Button>Acessar</Button>
                     </Form>
                 </Conteudo>
                 :
@@ -126,10 +147,10 @@ function App() {
                             )
                         })}
                     </Chatbox>
-                        <SandMsg>
-                            <InputMsg type="text" name="mensagem" value={mensagem} placeholder="Mensagem..." onChange={(text) => { setMensagem(text.target.value) }} />
-                            <ButtonMsg onClick={sendMassage}>Enviar</ButtonMsg>
-                        </SandMsg>
+                    <SandMsg>
+                        <InputMsg type="text" name="mensagem" value={mensagem} placeholder="Mensagem..." onChange={(text) => { setMensagem(text.target.value) }} />
+                        <ButtonMsg onClick={sendMassage}>Enviar</ButtonMsg>
+                    </SandMsg>
                 </ConteudoChat>
             }
         </Container>

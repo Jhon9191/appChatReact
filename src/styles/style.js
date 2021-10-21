@@ -65,6 +65,7 @@ export const Button = styled.button`
     color: #fff;
     margin-top: 13px;
     padding: 10px;
+    cursor: pointer;
 `;
 
 export const HeaderChat = styled.header`
