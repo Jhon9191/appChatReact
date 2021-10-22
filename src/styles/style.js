@@ -89,10 +89,10 @@ export const NomeUsuario = styled.div`
 
 export const Chatbox = styled.div`
     position: relative;
-    min-height: 500px;
-    max-height: 500px;
+    //min-height: 500px;
+    //max-height: 500px;
     overflow-y: auto;
-    padding: 10px 10px 20px 10px;
+    padding: 10px 0px 0px 10px;
     background-color: #f7f7f7;
     box-shadow: inset 0 32px  32px -32px rgba(0 0 0 / 5%),
                 inset 0 -32px  32px -32px rgba(0 0 0 / 5%);

@@ -27,6 +27,7 @@ import {
     ButtonMsg
 } from '../src/styles/style'
 import api from './config/api';
+import ScrollToBottom  from 'react-scroll-to-bottom';
 
 let socket;
 
@@ -39,23 +40,23 @@ function App() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [sala, setSala] = useState("");
-    
+
     // const [logado, setLogado] = useState(true);
     // const [name, setName] = useState("Joao");
     // const [sala, setSala] = useState("1");
-    
+
     const [mensagem, setMensagem] = useState("");
     const [listaMensagem, setListaMensagem] = useState([]);
-    
+
     const conecatarSala = async e => {
         e.preventDefault();
         const headers = {
             'Content-Type': 'application/json'
         }
         await api.post("/validar-acesso", { email }, { headers })
-        .then((response) => {
-            //console.log(response.data.mensagem);
-            setUsuarioId(response.data.usuario.id);
+            .then((response) => {
+                //console.log(response.data.mensagem);
+                setUsuarioId(response.data.usuario.id);
                 setName(response.data.usuario.name);
                 socket.emit("sala_conectada", sala);
                 setLogado(true);
@@ -68,10 +69,10 @@ function App() {
                     console.log("Api fora do ar!");
                 }
             })
-        }
-        
-        const listarMensagens = async () => {
-            await api.get('/listar-messsages/' + sala)
+    }
+
+    const listarMensagens = async () => {
+        await api.get('/listar-messsages/' + sala)
             .then((response) => {
                 console.log(response.data.messages)
                 setListaMensagem(response.data.messages);
@@ -147,6 +148,7 @@ function App() {
                         <NomeUsuario>Chat</NomeUsuario>
                     </HeaderChat>
                     <Chatbox>
+                        <ScrollToBottom className="ScrolMessage">
                         {listaMensagem.map((msg, key) => {
                             return (
                                 <div key={key}>
@@ -166,6 +168,7 @@ function App() {
                                 </div>
                             )
                         })}
+                        </ScrollToBottom >
                     </Chatbox>
                     <SandMsg onSubmit={sendMassage}>
                         <InputMsg type="text" name="mensagem" value={mensagem} placeholder="Mensagem..." onChange={(text) => { setMensagem(text.target.value) }} />
