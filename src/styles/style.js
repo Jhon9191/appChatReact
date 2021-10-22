@@ -144,7 +144,7 @@ export const TextMsgRecebida = styled.p`
                 0rem 16px 16px -16px rgba(0 0 0 / 10%)        
 `;
 
-export const SandMsg = styled.div`
+export const SandMsg = styled.form`
     padding: 18px;
     display: flex;
     justify-content: space-between;

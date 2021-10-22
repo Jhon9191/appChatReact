@@ -39,26 +39,42 @@ function App() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [sala, setSala] = useState("");
-
+    
     // const [logado, setLogado] = useState(true);
     // const [name, setName] = useState("Joao");
     // const [sala, setSala] = useState("1");
-
+    
     const [mensagem, setMensagem] = useState("");
     const [listaMensagem, setListaMensagem] = useState([]);
-
+    
     const conecatarSala = async e => {
         e.preventDefault();
         const headers = {
             'Content-Type': 'application/json'
         }
         await api.post("/validar-acesso", { email }, { headers })
-            .then((response) => {
-                //console.log(response.data.mensagem);
-                setUsuarioId(response.data.usuario.id);
+        .then((response) => {
+            //console.log(response.data.mensagem);
+            setUsuarioId(response.data.usuario.id);
                 setName(response.data.usuario.name);
                 socket.emit("sala_conectada", sala);
                 setLogado(true);
+                listarMensagens();
+            })
+            .catch((err) => {
+                if (err.response) {
+                    console.log(err.response.data.mensagem);
+                } else {
+                    console.log("Api fora do ar!");
+                }
+            })
+        }
+        
+        const listarMensagens = async () => {
+            await api.get('/listar-messsages/' + sala)
+            .then((response) => {
+                console.log(response.data.messages)
+                setListaMensagem(response.data.messages);
             })
             .catch((err) => {
                 if (err.response) {
@@ -69,16 +85,20 @@ function App() {
             })
     }
 
-    const sendMassage = async () => {
+    const sendMassage = async e => {
+        e.preventDefault();
 
         const conteudo = {
             sala: sala,
             conteudo: {
-                name: name,
-                mensagem: mensagem
+                mensagem: mensagem,
+                usuario: {
+                    id: usuarioId,
+                    name: name
+                }
             }
         }
-
+        console.log(conteudo)
         await socket.emit("enviar_mensagem", conteudo);
         setListaMensagem([...listaMensagem, conteudo.conteudo]);
         setMensagem("");
@@ -130,16 +150,16 @@ function App() {
                         {listaMensagem.map((msg, key) => {
                             return (
                                 <div key={key}>
-                                    {name === msg.name ?
+                                    {usuarioId === msg.usuario.id ?
                                         <MsgEnviada >
                                             <DetMsgEnviar>
-                                                <TextMsgEnviar>{msg.name}: {msg.mensagem}</TextMsgEnviar>
+                                                <TextMsgEnviar>{msg.usuario.name}: {msg.mensagem}</TextMsgEnviar>
                                             </DetMsgEnviar>
                                         </MsgEnviada>
                                         :
                                         <MsgRecebida>
                                             <DetMsgRecebida>
-                                                <TextMsgRecebida>{msg.name}: {msg.mensagem}</TextMsgRecebida>
+                                                <TextMsgRecebida>{msg.usuario.name}: {msg.mensagem}</TextMsgRecebida>
                                             </DetMsgRecebida>
                                         </MsgRecebida>
                                     }
@@ -147,9 +167,9 @@ function App() {
                             )
                         })}
                     </Chatbox>
-                    <SandMsg>
+                    <SandMsg onSubmit={sendMassage}>
                         <InputMsg type="text" name="mensagem" value={mensagem} placeholder="Mensagem..." onChange={(text) => { setMensagem(text.target.value) }} />
-                        <ButtonMsg onClick={sendMassage}>Enviar</ButtonMsg>
+                        <ButtonMsg>Enviar</ButtonMsg>
                     </SandMsg>
                 </ConteudoChat>
             }
