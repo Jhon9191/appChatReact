@@ -171,6 +171,17 @@ export const ButtonMsg = styled.button`
     border-radius: 0 5px 5px 0;
 `;
 
+export const AlertError = styled.p`
+    background-color: #f8d7da;
+    color: #842029;
+    margin: 10px 0;
+    border: 1px solid #f5c2c7;
+    border-radius: 5px;
+    padding: 3px;
+`;
+
+
+
 export const Exemplo = styled.p`
     
 `;

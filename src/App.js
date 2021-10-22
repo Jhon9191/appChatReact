@@ -24,10 +24,11 @@ import {
     TextMsgRecebida,
     SandMsg,
     InputMsg,
-    ButtonMsg
+    ButtonMsg,
+    AlertError
 } from '../src/styles/style'
 import api from './config/api';
-import ScrollToBottom  from 'react-scroll-to-bottom';
+import ScrollToBottom from 'react-scroll-to-bottom';
 
 let socket;
 
@@ -40,6 +41,7 @@ function App() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [sala, setSala] = useState("");
+    const [status, setStatus] = useState({});
 
     // const [logado, setLogado] = useState(true);
     // const [name, setName] = useState("Joao");
@@ -64,9 +66,17 @@ function App() {
             })
             .catch((err) => {
                 if (err.response) {
-                    console.log(err.response.data.mensagem);
+                    //console.log(err.response.data.mensagem);
+                    setStatus({
+                        type: 'erro',
+                        mensagem: err.response.data.mensagem
+                    });
                 } else {
                     console.log("Api fora do ar!");
+                    setStatus({
+                        type: 'erro',
+                        mensagem: "Erro: tente mais tarde"
+                    });
                 }
             })
     }
@@ -128,6 +138,9 @@ function App() {
                             }
                             } />
                         </Campo>
+                        {status.type === 'erro' ?
+                            <AlertError>{status.mensagem}</AlertError>
+                            : ""}
                         <Campo>
                             <Label>Sala: </Label>
                             <Select name="sala" value={sala} onChange={(text) => { setSala(text.target.value) }}>
@@ -149,25 +162,25 @@ function App() {
                     </HeaderChat>
                     <Chatbox>
                         <ScrollToBottom className="ScrolMessage">
-                        {listaMensagem.map((msg, key) => {
-                            return (
-                                <div key={key}>
-                                    {usuarioId === msg.usuario.id ?
-                                        <MsgEnviada >
-                                            <DetMsgEnviar>
-                                                <TextMsgEnviar>{msg.usuario.name}: {msg.mensagem}</TextMsgEnviar>
-                                            </DetMsgEnviar>
-                                        </MsgEnviada>
-                                        :
-                                        <MsgRecebida>
-                                            <DetMsgRecebida>
-                                                <TextMsgRecebida>{msg.usuario.name}: {msg.mensagem}</TextMsgRecebida>
-                                            </DetMsgRecebida>
-                                        </MsgRecebida>
-                                    }
-                                </div>
-                            )
-                        })}
+                            {listaMensagem.map((msg, key) => {
+                                return (
+                                    <div key={key}>
+                                        {usuarioId === msg.usuario.id ?
+                                            <MsgEnviada >
+                                                <DetMsgEnviar>
+                                                    <TextMsgEnviar>{msg.usuario.name}: {msg.mensagem}</TextMsgEnviar>
+                                                </DetMsgEnviar>
+                                            </MsgEnviada>
+                                            :
+                                            <MsgRecebida>
+                                                <DetMsgRecebida>
+                                                    <TextMsgRecebida>{msg.usuario.name}: {msg.mensagem}</TextMsgRecebida>
+                                                </DetMsgRecebida>
+                                            </MsgRecebida>
+                                        }
+                                    </div>
+                                )
+                            })}
                         </ScrollToBottom >
                     </Chatbox>
                     <SandMsg onSubmit={sendMassage}>
